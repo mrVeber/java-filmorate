@@ -20,4 +20,12 @@ public class User {
     @NotNull
     @PastOrPresent
     private LocalDateTime birthday;
+
+    public User(int id, String email, String login, String name, LocalDateTime birthdate) {
+        this.id = id;
+        this.email = email;
+        this.login = login;
+        this.name = name;
+        this.birthday = birthdate;
+    }
 }
