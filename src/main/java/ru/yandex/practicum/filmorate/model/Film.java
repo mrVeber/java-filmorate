@@ -23,7 +23,7 @@ public class Film {
     @Positive
     private long duration;
 
-    public Film(int id, String name, String description, LocalDateTime releaseDate, int duration) {
+    public Film(int id, String name, String description, LocalDateTime releaseDate, long duration) {
         this.id = id;
         this.name = name;
         this.description = description;
