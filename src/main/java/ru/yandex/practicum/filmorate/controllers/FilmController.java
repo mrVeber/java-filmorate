@@ -34,11 +34,9 @@ public class FilmController {
 
     @PutMapping()
     public Film updateFilm(@Valid @RequestBody Film film) {
-        if(!films.contains(film)) {
             log.info("Поступил запрос на обновление фильма");
             validationFilmService.validDateFilm(film);
             films.add(film);
-        }
         return film;
     }
 }
