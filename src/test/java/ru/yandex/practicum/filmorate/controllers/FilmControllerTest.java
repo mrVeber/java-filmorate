@@ -62,7 +62,7 @@ class FilmControllerTest {
                 () -> {
                     filmController.addFilm(film);
                 });
-        assertEquals("Название фильма должно присутствовать", exception.getMessage());
+        assertEquals("Название фильма - обязательно к заполнению", exception.getMessage());
     }
 
     @Test
@@ -86,7 +86,7 @@ class FilmControllerTest {
                 () -> {
                     filmController.addFilm(film);
                 });
-        assertEquals("Дата релиза фильма не может быть ранее 28.12.1895", exception.getMessage());
+        assertEquals("Дата релиза не может быть раньше 1895-12-28", exception.getMessage());
     }
 
     @Test

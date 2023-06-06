@@ -1,6 +1,5 @@
 package ru.yandex.practicum.filmorate.controllers;
 
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
@@ -26,7 +25,7 @@ public class UserController {
     }
 
     @PostMapping()
-    public User addUser(@Valid @RequestBody User user) {
+    public User addUser(@RequestBody User user) {
         User validUser = ValidationUserService.validUsers(user);
         validUser.setId(++id);
         users.put(id, validUser);
@@ -35,7 +34,7 @@ public class UserController {
     }
 
     @PutMapping()
-    public User updateUser(@Valid @RequestBody User user) {
+    public User updateUser(@RequestBody User user) {
         if (!users.containsKey(user.getId())) {
             log.debug("В запросе передан пользователь с некорректным ID: {}", user.getId());
             throw new ValidationException("Пользователя с ID " + user.getId() + " нет в базе");

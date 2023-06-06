@@ -18,9 +18,7 @@ import java.util.Map;
 public class FilmController {
 
     private int id = 0;
-    private ValidationFilmService validationFilmService;
-
-    private Map<Integer, Film> films = new HashMap<>();
+    private final Map<Integer, Film> films = new HashMap<>();
 
     @GetMapping()
     public List<Film> getAllFilms() {
@@ -29,9 +27,9 @@ public class FilmController {
     }
 
     @PostMapping()
-    public Film addFilm(@Valid @RequestBody Film film) {
+    public Film addFilm(@RequestBody Film film) {
         log.debug("Поступил запрос на добавление фильма");
-        Film validFilm = validationFilmService.validFilms(film);
+        Film validFilm = ValidationFilmService.validFilms(film);
         validFilm.setId(++id);
         films.put(validFilm.getId(), validFilm);
         log.debug("Фильм с названием '{}' и идентификатором '{}' добавлен", validFilm.getName(), validFilm.getId());
@@ -39,12 +37,12 @@ public class FilmController {
     }
 
     @PutMapping()
-    public Film updateFilm(@Valid @RequestBody Film film) {
+    public Film updateFilm(@RequestBody Film film) {
         if (!films.containsKey(film.getId())) {
             log.debug("В запросе передан фильм с некорректным ID: {}", film.getId());
             throw new ValidationException("Фильма с ID " + film.getId() + " в базе не существует");
         }
-        Film validFilm = validationFilmService.validFilms(film);
+        Film validFilm = ValidationFilmService.validFilms(film);
         films.put(validFilm.getId(), validFilm);
         log.debug("Фильм с идентификатором {} обновлен", validFilm.getId());
         return films.get(validFilm.getId());

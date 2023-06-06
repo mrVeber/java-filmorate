@@ -1,24 +1,22 @@
 package ru.yandex.practicum.filmorate.model;
 
-import jakarta.validation.constraints.*;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NonNull;
 
 import java.time.LocalDate;
 
 @Data
 @Builder
 public class User {
+    @NonNull
     private int id;
-    @NotBlank
-    @Email(regexp = "^[A-Z0-9+_.-]+@[A-Z0-9.-]+$", message = "Некорректный email!")
+    @NonNull
     private String email;
-    @NotBlank
-    @Pattern(regexp = "\\s*", message = "Логин не должен содержать пробелов.")
+    @NonNull
     private String login;
     private String name;
-    @NotNull
-    @PastOrPresent
+    @NonNull
     private LocalDate birthday;
 
     public User(int id, String email, String login, String name, LocalDate birthdate) {
