@@ -7,7 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import org.antlr.v4.runtime.misc.NotNull;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 @Builder
@@ -19,11 +19,11 @@ public class Film {
     @Size(max = 200)
     private String description;
     @NotNull
-    private LocalDateTime releaseDate;
+    private LocalDate releaseDate;
     @Positive
     private long duration;
 
-    public Film(int id, String name, String description, LocalDateTime releaseDate, long duration) {
+    public Film(int id, String name, String description, LocalDate releaseDate, long duration) {
         this.id = id;
         this.name = name;
         this.description = description;

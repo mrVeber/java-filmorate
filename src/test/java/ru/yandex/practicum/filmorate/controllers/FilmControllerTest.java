@@ -1,18 +1,21 @@
 package ru.yandex.practicum.filmorate.controllers;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.valid.ValidationFilmService;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SpringBootTest
 class FilmControllerTest {
     private FilmController filmController;
 
     void addTestFilms() {
         Film film1 = new Film(1, "Film1", "desc",
-                LocalDateTime.of(2000, 12,20,00,00), 120);
+                LocalDate.of(2000, 12,20), 120);
         filmController.addFilm(film1);
     }
 
@@ -32,7 +35,7 @@ class FilmControllerTest {
         addTestFilms();
 
         Film filmTestUpdate = new Film(1, "filmTestUpdate", "desc",
-                LocalDateTime.of(2002, 12, 22, 00,00), 130);
+                LocalDate.of(2002, 12, 22), 130);
         filmController.updateFilm(filmTestUpdate);
         assertEquals(1, filmController.getAllFilms().size());
     }
