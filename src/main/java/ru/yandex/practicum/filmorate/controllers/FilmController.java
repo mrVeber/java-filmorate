@@ -13,11 +13,11 @@ import java.util.Map;
 
 @Slf4j
 @RestController
-@RequestMapping("/film")
+@RequestMapping("/films")
 public class FilmController {
 
-    private int id = 0;
     private final Map<Integer, Film> films = new HashMap<>();
+    private int id = 0;
 
     @GetMapping()
     public List<Film> getAllFilms() {
@@ -27,10 +27,9 @@ public class FilmController {
 
     @PostMapping()
     public Film addFilm(@RequestBody Film film) {
-        log.debug("Поступил запрос на добавление фильма");
         Film validFilm = ValidationFilmService.validFilms(film);
         validFilm.setId(++id);
-        films.put(validFilm.getId(), validFilm);
+        films.put(id, validFilm);
         log.debug("Фильм с названием '{}' и идентификатором '{}' добавлен", validFilm.getName(), validFilm.getId());
         return films.get(id);
     }

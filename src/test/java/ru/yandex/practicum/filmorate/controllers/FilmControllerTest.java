@@ -43,7 +43,7 @@ class FilmControllerTest {
                 NullPointerException.class,
                 () -> {
                     Film film2 = Film.builder()
-                            .name(null)
+                            .name("")
                             .description("desc1")
                             .releaseDate(LocalDate.of(1970, 5, 30))
                             .duration(83)
@@ -68,8 +68,8 @@ class FilmControllerTest {
     @Test
     void addFilmWithBigDescriptionShouldThrowException() {
         film.setDescription("Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
-                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
-                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
+                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
         final ValidationException exception = assertThrows(
                 ValidationException.class,
                 () -> {
@@ -80,7 +80,7 @@ class FilmControllerTest {
 
     @Test
     void addFilmWithOldReleaseDateShouldThrowException() {
-        film.setReleaseDate(LocalDate.of(1894, 10, 4));
+        film.setReleaseDate(LocalDate.of(1800, 10, 4));
         final ValidationException exception = assertThrows(
                 ValidationException.class,
                 () -> {
@@ -91,7 +91,7 @@ class FilmControllerTest {
 
     @Test
     void addFilmWithMinusDurationShouldThrowException() {
-        film.setDuration(-10);
+        film.setDuration(-120);
         final ValidationException exception = assertThrows(
                 ValidationException.class,
                 () -> {
@@ -107,7 +107,7 @@ class FilmControllerTest {
                 .id(1)
                 .name("Film1")
                 .description("Decs1")
-                .releaseDate(LocalDate.of(1970, 5, 30))
+                .releaseDate(LocalDate.of(1990, 6, 4))
                 .duration(83)
                 .build();
         filmController.updateFilm(film2);
