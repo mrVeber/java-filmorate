@@ -1,67 +1,137 @@
 package ru.yandex.practicum.filmorate.controllers;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class FilmControllerTest {
     private FilmController filmController;
+    private Film film;
 
-    void addTestFilms() {
-        Film film1 = new Film(1, "Film1", "desc",
-                LocalDate.of(2000, 12,20), 120);
-        filmController.addFilm(film1);
+    @BeforeEach
+    void setUp() {
+        filmController = new FilmController();
+        film = Film.builder()
+                .name("Film1")
+                .description("desc1")
+                .releaseDate(LocalDate.of(1970, 5, 30))
+                .duration(83)
+                .build();
     }
 
     @Test
-    void getAllFilms() {
-        assertEquals(0, filmController.getAllFilms());
-    }
-
-    @Test
-    void addFilm() {
-        addTestFilms();
+    void addFilmAndGetFilmList() {
+        filmController.addFilm(film);
+        List<Film> list = filmController.getAllFilms();
         assertEquals(1, filmController.getAllFilms().size());
+        assertEquals(film.getName(), list.get(0).getName());
+        assertEquals(film.getDescription(), list.get(0).getDescription());
+        assertEquals(film.getDuration(), list.get(0).getDuration());
+        assertEquals(film.getReleaseDate(), list.get(0).getReleaseDate());
+    }
+
+    @Test
+    void addFilmWithNullNameShouldThrowNullPointerException() {
+
+        final NullPointerException exception = assertThrows(
+                NullPointerException.class,
+                () -> {
+                    Film film2 = Film.builder()
+                            .name(null)
+                            .description("desc1")
+                            .releaseDate(LocalDate.of(1970, 5, 30))
+                            .duration(83)
+                            .build();
+                    ;
+                    filmController.addFilm(film2);
+                });
+        assertEquals(NullPointerException.class, exception.getClass());
+    }
+
+    @Test
+    void addFilmWithBlankNameShouldThrowException() {
+        film.setName("");
+        final ValidationException exception = assertThrows(
+                ValidationException.class,
+                () -> {
+                    filmController.addFilm(film);
+                });
+        assertEquals("Название фильма должно присутствовать", exception.getMessage());
+    }
+
+    @Test
+    void addFilmWithBigDescriptionShouldThrowException() {
+        film.setDescription("Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
+                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
+                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+        final ValidationException exception = assertThrows(
+                ValidationException.class,
+                () -> {
+                    filmController.addFilm(film);
+                });
+        assertEquals("Длина описания не должна превышать 200 символов", exception.getMessage());
+    }
+
+    @Test
+    void addFilmWithOldReleaseDateShouldThrowException() {
+        film.setReleaseDate(LocalDate.of(1894, 10, 4));
+        final ValidationException exception = assertThrows(
+                ValidationException.class,
+                () -> {
+                    filmController.addFilm(film);
+                });
+        assertEquals("Дата релиза фильма не может быть ранее 28.12.1895", exception.getMessage());
+    }
+
+    @Test
+    void addFilmWithMinusDurationShouldThrowException() {
+        film.setDuration(-10);
+        final ValidationException exception = assertThrows(
+                ValidationException.class,
+                () -> {
+                    filmController.addFilm(film);
+                });
+        assertEquals("Продолжительность не может быть 0 или отрицательной", exception.getMessage());
     }
 
     @Test
     void updateFilm() {
-        addTestFilms();
-        Film filmTestUpdate = new Film(1, "filmTestUpdate", "desc",
-                LocalDate.of(2002, 12, 22), 130);
-        filmController.updateFilm(filmTestUpdate);
-        assertEquals(1, filmController.getAllFilms().size());
+        filmController.addFilm(film);
+        Film film2 = Film.builder()
+                .id(1)
+                .name("Film1")
+                .description("Decs1")
+                .releaseDate(LocalDate.of(1970, 5, 30))
+                .duration(83)
+                .build();
+        filmController.updateFilm(film2);
+        List<Film> list = filmController.getAllFilms();
+        assertEquals("Film1", list.get(0).getName());
+        assertEquals("Decs1", list.get(0).getDescription());
     }
 
-    void addTestFilmsWithNonName() {
-        Film film1 = new Film(1, "", "desc",
-                LocalDate.of(2000, 12,20), 120);
-        assertEquals("", film1.getName());
-    }
+    @Test
+    void updateFilmWithWrongId() {
+        filmController.addFilm(film);
+        Film film2 = Film.builder()
+                .id(2)
+                .name("Film2")
+                .description("desc2")
+                .releaseDate(LocalDate.of(1970, 5, 30))
+                .duration(83)
+                .build();
 
-    void addTestFilmsWithNonDesc() {
-        Film film1 = new Film(1, "Film1", "",
-                LocalDate.of(2000, 12,20), 120);
-        assertEquals("", film1.getDescription());
-    }
-
-    void addTestFilmsWithMoreDesc() {
-        Film film1 = new Film(1, "Film1", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
-                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
-                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
-                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
-                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" +
-                "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
-                LocalDate.of(2000, 12,20), 120);
-        assertEquals(200, film1.getDescription().length());
-    }
-
-    void addTestFilmWithPositiveDuration() {
-        Film film1 = new Film(1, "Film1", "",
-                LocalDate.of(2000, 12,20), -120);
-        assertEquals(0, film1.getDuration());
+        final ValidationException exception = assertThrows(
+                ValidationException.class,
+                () -> {
+                    filmController.updateFilm(film2);
+                });
+        assertEquals("Фильма с ID 2 в базе не существует", exception.getMessage());
     }
 }

@@ -3,36 +3,46 @@ package ru.yandex.practicum.filmorate.controllers;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.ValidationUserService;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
 @Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
-    private Set<User> users = new HashSet<>();
+    private Map<Integer, User> users = new HashMap<>();
+    private int id = 0;
 
     @GetMapping()
     public List<User> getAllUsers() {
         log.info("Поступил запрос на получение пользователей");
-        return List.copyOf(users);
+        return new ArrayList<>(users.values());
     }
 
     @PostMapping()
     public User addUser(@Valid @RequestBody User user) {
-        if (users.contains(user))
-            log.info("Поступил запрос на добавление пользователя");
-            users.add(user);
-        return user;
+        User validUser = ValidationUserService.validUsers(user);
+        validUser.setId(++id);
+        users.put(id, validUser);
+        log.debug("Пользователь добавлен: {}", validUser);
+        return users.get(id);
     }
 
     @PutMapping()
     public User updateUser(@Valid @RequestBody User user) {
-        log.info("Поступил запрос на обновление пользователя");
-        users.add(user);
-        return user;
+        if (!users.containsKey(user.getId())) {
+            log.debug("В запросе передан пользователь с некорректным ID: {}", user.getId());
+            throw new ValidationException("Пользователя с ID " + user.getId() + " нет в базе");
+        }
+        User validUser = ValidationUserService.validUsers(user);
+        users.put(validUser.getId(), validUser);
+        log.debug("Пользователь с ID: {}, обновлен: {}", validUser.getId(), validUser);
+        return users.get(validUser.getId());
     }
 }
