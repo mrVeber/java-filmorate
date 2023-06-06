@@ -43,7 +43,7 @@ class FilmControllerTest {
                 NullPointerException.class,
                 () -> {
                     Film film2 = Film.builder()
-                            .name("")
+                            .name(null)
                             .description("desc1")
                             .releaseDate(LocalDate.of(1970, 5, 30))
                             .duration(83)
