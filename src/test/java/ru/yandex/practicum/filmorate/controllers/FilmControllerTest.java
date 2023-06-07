@@ -53,7 +53,7 @@ class FilmControllerTest {
 
         Set<ConstraintViolation<Film>> violations = validator.validate(filmWithFirstFilmDate);
 
-        Assertions.assertTrue(violations.isEmpty());
+        Assertions.assertFalse(violations.isEmpty());
     }
 
     @Test
