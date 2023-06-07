@@ -1,31 +1,25 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.NonNull;
+import lombok.*;
+import ru.yandex.practicum.filmorate.validators.ReleaseDate;
 
+import javax.validation.constraints.*;
 import java.time.LocalDate;
 
 @Data
-@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+@Builder(toBuilder = true)
 public class Film {
-    @NonNull
+    @PositiveOrZero
     private int id;
-    @NonNull
+    @NotBlank
+    @NotNull
     private String name;
-    @NonNull
+    @Size(max = 200)
     private String description;
-    @NonNull
+    @ReleaseDate
     private LocalDate releaseDate;
-    @NonNull
-    private long duration;
-
-    public Film(int id, String name, String description, LocalDate releaseDate, long duration) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.releaseDate = releaseDate;
-        this.duration = duration;
-    }
-
+    @Positive
+    private Integer duration;
 }

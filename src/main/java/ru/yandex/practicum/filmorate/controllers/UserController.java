@@ -1,10 +1,10 @@
 package ru.yandex.practicum.filmorate.controllers;
 
+import javax.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.service.ValidationUserService;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,23 +25,24 @@ public class UserController {
     }
 
     @PostMapping()
-    public User addUser(@RequestBody User user) {
-        User validUser = ValidationUserService.validUsers(user);
-        validUser.setId(++id);
-        users.put(id, validUser);
-        log.debug("Пользователь добавлен: {}", validUser);
-        return users.get(id);
+    public User addUser(@Valid @RequestBody User user) {
+        user.setId(++id);
+        if (user.getName() == null) {
+            user.setName(user.getLogin());
+        }
+        users.put(id, user);
+        log.debug("Пользователь добавлен: {}", user);
+        return user;
     }
 
     @PutMapping()
-    public User updateUser(@RequestBody User user) {
+    public User updateUser(@Valid @RequestBody User user) {
         if (!users.containsKey(user.getId())) {
             log.debug("В запросе передан пользователь с некорректным ID: {}", user.getId());
             throw new ValidationException("Пользователя с ID " + user.getId() + " нет в базе");
         }
-        User validUser = ValidationUserService.validUsers(user);
-        users.put(validUser.getId(), validUser);
-        log.debug("Пользователь с ID: {}, обновлен: {}", validUser.getId(), validUser);
-        return users.get(validUser.getId());
+        users.put(user.getId(), user);
+        log.debug("Пользователь с ID: {}, обновлен: {}", user.getId(), user);
+        return user;
     }
 }

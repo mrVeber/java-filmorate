@@ -4,8 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.service.ValidationFilmService;
 
+import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -26,23 +26,21 @@ public class FilmController {
     }
 
     @PostMapping()
-    public Film addFilm(@RequestBody Film film) {
-        Film validFilm = ValidationFilmService.validFilms(film);
-        validFilm.setId(++id);
-        films.put(id, validFilm);
-        log.debug("Фильм с названием '{}' и идентификатором '{}' добавлен", validFilm.getName(), validFilm.getId());
-        return films.get(id);
+    public Film addFilm(@Valid @RequestBody Film film) {
+        film.setId(++id);
+        films.put(film.getId(), film);
+        log.debug("Фильм с названием '{}' и идентификатором '{}' добавлен", film.getName(), film.getId());
+        return film;
     }
 
     @PutMapping()
-    public Film updateFilm(@RequestBody Film film) {
+    public Film updateFilm(@Valid @RequestBody Film film) {
         if (!films.containsKey(film.getId())) {
             log.debug("В запросе передан фильм с некорректным ID: {}", film.getId());
             throw new ValidationException("Фильма с ID " + film.getId() + " в базе не существует");
         }
-        Film validFilm = ValidationFilmService.validFilms(film);
-        films.put(validFilm.getId(), validFilm);
-        log.debug("Фильм с идентификатором {} обновлен", validFilm.getId());
-        return films.get(validFilm.getId());
+        films.put(film.getId(), film);
+        log.debug("Фильм с идентификатором {} обновлен", film.getId());
+        return film;
     }
 }
