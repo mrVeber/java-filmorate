@@ -27,9 +27,7 @@ public class UserController {
     @PostMapping()
     public User addUser(@Valid @RequestBody User user) {
         user.setId(++id);
-        if (user.getName() == null) {
-            user.setName(user.getLogin());
-        }
+        checkUser(user);
         users.put(id, user);
         log.debug("Пользователь добавлен: {}", user);
         return user;
@@ -37,12 +35,20 @@ public class UserController {
 
     @PutMapping()
     public User updateUser(@Valid @RequestBody User user) {
+        checkUser(user);
         if (!users.containsKey(user.getId())) {
             log.debug("В запросе передан пользователь с некорректным ID: {}", user.getId());
             throw new ValidationException("Пользователя с ID " + user.getId() + " нет в базе");
         }
         users.put(user.getId(), user);
         log.debug("Пользователь с ID: {}, обновлен: {}", user.getId(), user);
+        return user;
+    }
+
+    private User checkUser(User user) {
+        if (user.getName() == null || user.getName().isBlank()) {
+            user.setName(user.getLogin());
+        }
         return user;
     }
 }
