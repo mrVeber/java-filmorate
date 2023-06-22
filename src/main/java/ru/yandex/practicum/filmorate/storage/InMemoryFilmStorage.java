@@ -9,7 +9,7 @@ import java.util.Map;
 
 @Slf4j
 @Component
-public class InMemoryFilmStorage implements FilmStorage{
+public class InMemoryFilmStorage implements FilmStorage {
 
     private final Map<Long, Film> films = new HashMap<>();
     private long idCounter = 0;
@@ -31,9 +31,8 @@ public class InMemoryFilmStorage implements FilmStorage{
 
     @Override
     public void updateFilm(Film film) {
-        if (!films.containsKey(film.getId())) {
+        if (!films.containsKey(film.getId()))
             throw new ObjectNotFoundException("Фильм с id=" + film.getId() + " не найден");
-        }
         films.put(film.getId(), film);
         log.info("Обновлен фильм: " + film);
     }
