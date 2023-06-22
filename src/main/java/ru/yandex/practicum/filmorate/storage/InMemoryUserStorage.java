@@ -8,9 +8,8 @@ import java.util.*;
 
 @Slf4j
 @Component
-public class InMemoryUserStorage implements UserStorage{
+public class InMemoryUserStorage implements UserStorage {
     private Map<Long, User> users = new HashMap<>();
-
     private long idCounter = 0;
 
     @Override
