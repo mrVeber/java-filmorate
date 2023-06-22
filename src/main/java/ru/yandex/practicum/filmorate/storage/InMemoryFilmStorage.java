@@ -31,8 +31,9 @@ public class InMemoryFilmStorage implements FilmStorage{
 
     @Override
     public void updateFilm(Film film) {
-        if (!films.containsKey(film.getId()))
+        if (!films.containsKey(film.getId())) {
             throw new ObjectNotFoundException("Фильм с id=" + film.getId() + " не найден");
+        }
         films.put(film.getId(), film);
         log.info("Обновлен фильм: " + film);
     }
@@ -42,5 +43,4 @@ public class InMemoryFilmStorage implements FilmStorage{
         log.info("Отправлены все фильмы");
         return films;
     }
-
 }
