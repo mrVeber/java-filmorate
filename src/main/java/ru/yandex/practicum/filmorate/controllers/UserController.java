@@ -5,7 +5,6 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import javax.validation.Valid;
 import java.util.ArrayList;
 import java.util.List;
