@@ -20,6 +20,7 @@ public class FilmService {
 
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
+
     @Autowired
     public FilmService(InMemoryFilmStorage filmStorage, InMemoryUserStorage userStorage) {
         this.filmStorage = filmStorage;
@@ -40,7 +41,7 @@ public class FilmService {
                 .orElseThrow(() -> new ObjectNotFoundException("Фильм с id " + id + "не найден"));
     }
 
-    public Collection <Film> getFilms() {
+    public Collection<Film> getFilms() {
        return filmStorage.getFilms();
     }
 
