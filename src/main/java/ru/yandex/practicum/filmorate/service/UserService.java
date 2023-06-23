@@ -83,10 +83,8 @@ public class UserService {
 
     private void validateId(long userId, long friendId) {
         Optional.ofNullable(userStorage.getUser(userId))
-                .orElseThrow(() -> new ObjectNotFoundException
-                        ("Пользователь с идентификатором " + userId + " не зарегистрирован!"));
+                .orElseThrow(() -> new ObjectNotFoundException("Пользователь с идентификатором " + userId + " не зарегистрирован!"));
         Optional.ofNullable(userStorage.getUser(friendId))
-                .orElseThrow(() -> new ObjectNotFoundException
-                        ("Пользователь с идентификатором " + friendId + " не зарегистрирован!"));
+                .orElseThrow(() -> new ObjectNotFoundException("Пользователь с идентификатором " + friendId + " не зарегистрирован!"));
     }
 }
