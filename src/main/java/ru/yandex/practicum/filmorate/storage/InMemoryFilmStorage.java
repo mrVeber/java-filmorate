@@ -40,7 +40,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Collection<Film> getFilms() {
         Collection<Film> allFilms = films.values();
-        if(allFilms.isEmpty()) {
+        if (allFilms.isEmpty()) {
             allFilms.addAll(films.values());
         }
         log.debug("Отправлены все фильмы");
