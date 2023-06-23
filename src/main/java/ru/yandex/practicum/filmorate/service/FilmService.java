@@ -50,10 +50,19 @@ public class FilmService {
     }
 
     public void like(long filmId, long userId) {
+        validateLike(filmId,userId);
         filmStorage.like(filmId, userId);
     }
 
     public void dislike(long filmId, long userId) {
+        validateLike(filmId,userId);
         filmStorage.dislike(filmId, userId);
+    }
+
+    private void validateLike(long filmId, long userId) {
+        Optional.ofNullable(filmStorage.getFilm(filmId))
+                .orElseThrow(() -> new ObjectNotFoundException("Фильм с идентификатором " + filmId + " не зарегистрирован!"));
+        Optional.ofNullable(userStorage.getUser(userId))
+                .orElseThrow(() -> new ObjectNotFoundException("Пользователь с идентификатором " + userId + " не зарегистрирован!"));
     }
 }
