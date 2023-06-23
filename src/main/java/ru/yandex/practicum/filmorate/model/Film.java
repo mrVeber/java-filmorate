@@ -1,11 +1,12 @@
 package ru.yandex.practicum.filmorate.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import ru.yandex.practicum.filmorate.validators.ReleaseDate;
 import javax.validation.constraints.*;
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -24,6 +25,14 @@ public class Film {
     @Positive
     @NotNull
     private Integer duration;
-    private Set<Integer> likes;
-    private final Set<Long> fans = new HashSet<>();
+    @JsonIgnore
+    private List<Long> likes = new ArrayList<>();
+
+    public void addLike(long id) {
+        likes.add(id);
+    }
+
+    public void deleteLike(long id) {
+        likes.remove(id);
+    }
 }

@@ -10,44 +10,64 @@ import java.util.*;
 @Component
 public class InMemoryUserStorage implements UserStorage {
     private Map<Long, User> users = new HashMap<>();
-    private long idCounter = 0;
+    private long id = 0;
 
     @Override
     public void addUser(User user) {
-        checkUser(user);
-        user.setId(++idCounter);
-
-        users.put(idCounter, user);
-        log.info("Создан пользователь: " + user);
+        user.setId(++id);
+        users.put(id, user);
+        log.debug("Создан пользователь: " + user);
     }
 
     @Override
     public void deleteUser(long id) {
         if (!users.containsKey(id))
-            throw new ObjectNotFoundException("Пользователь с id=" + id + " не найден");
+            throw new ObjectNotFoundException("Пользователь с id=" + id + "не найден");
         users.remove(id);
-        log.info("Удалён пользователь: (id=" + id + ")");
+        log.debug("Удалён пользователь c id {}", id);
     }
 
     @Override
     public void updateUser(User user) {
         if (!users.containsKey(user.getId()))
             throw new ObjectNotFoundException("Пользователь с id=" + user.getId() + " не найден");
-        checkUser(user);
         users.put(user.getId(), user);
-        log.info("Пользователь " + user + "обновлён");
+        log.debug("Пользователь {} обновлён", user);
     }
 
     @Override
-    public Map<Long, User> getUsers() {
-        log.info("Отправлены все пользователи");
-        return users;
+    public Collection<User> getUsers() {
+        Collection<User> allUsers = users.values();
+        log.debug("Отправлены все пользователи");
+        if (allUsers.isEmpty()) {
+            allUsers.addAll(users.values());
+        }
+        return allUsers;
     }
 
-    private User checkUser(User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
-        return user;
+    @Override
+    public User getUser(long userId) {
+        return users.get(userId);
     }
+
+    @Override
+    public void addFriend(long userId, long friendId) {
+        User user = users.get(userId);
+        User friend = users.get(friendId);
+        user.addFriend(friendId);
+        friend.addFriend(userId);
+        updateUser(user);
+        updateUser(friend);
+    }
+
+    @Override
+    public void deleteFriend(long userId, long friendId) {
+        User user = users.get(userId);
+        User friend = users.get(friendId);
+        user.deleteFriends(friendId);
+        friend.deleteFriends(userId);
+        updateUser(user);
+        updateUser(friend);
+    }
+
 }

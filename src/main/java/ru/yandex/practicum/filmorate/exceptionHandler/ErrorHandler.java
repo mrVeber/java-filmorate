@@ -13,21 +13,21 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ResponseBody handleValidationException(final ValidationException e) {
-        log.warn("Invalid input: " + e.getMessage());
+        log.debug("Некорректный ввод {} ", e.getMessage());
         return new ResponseBody(ValidationException.class.getName(), e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseBody handleObjectNotFoundException(final ObjectNotFoundException e) {
-        log.warn(e.getMessage());
+        log.debug(e.getMessage());
         return new ResponseBody(ObjectNotFoundException.class.getName(), e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
     public ResponseBody handleObjectNotFoundException(final Exception e) {
-        log.warn(e.getMessage());
+        log.debug(e.getMessage());
         return new ResponseBody(e.getClass().getName(), e.getMessage());
     }
 }

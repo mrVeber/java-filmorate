@@ -6,9 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.Collection;
 
 @RestController
 
@@ -29,12 +27,12 @@ public class FilmController {
     }
 
     @GetMapping
-    public List<Film> getFilms() {
-        return new ArrayList<>(filmService.getFilms().values());
+    public Collection<Film> getFilms() {
+        return filmService.getFilms();
     }
 
     @GetMapping("/popular")
-    public List<Film> getPopularFilms(@RequestParam Optional<Long> count) {
+    public Collection<Film> getPopularFilms(@RequestParam(defaultValue = "10") long count) {
         return filmService.getPopularFilms(count);
     }
 
@@ -51,12 +49,12 @@ public class FilmController {
     }
 
     @PutMapping("/{id}/like/{userId}")
-    public Film likeFilm(@PathVariable long id, @PathVariable long userId) {
-        return filmService.like(id, userId);
+    public void likeFilm(@PathVariable long id, @PathVariable long userId) {
+        filmService.like(id, userId);
     }
 
     @DeleteMapping("/{id}/like/{userId}")
-    public Film dislikeFilm(@PathVariable long id, @PathVariable long userId) {
-        return filmService.dislike(id, userId);
+    public void dislikeFilm(@PathVariable long id, @PathVariable long userId) {
+        filmService.dislike(id, userId);
     }
 }

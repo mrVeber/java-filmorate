@@ -11,10 +11,7 @@ import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -23,7 +20,6 @@ public class FilmService {
 
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
-
     @Autowired
     public FilmService(InMemoryFilmStorage filmStorage, InMemoryUserStorage userStorage) {
         this.filmStorage = filmStorage;
@@ -39,46 +35,24 @@ public class FilmService {
     }
 
     public Film getFilm(long id) {
-        if (!filmStorage.getFilms().containsKey(id))
-            throw new ObjectNotFoundException("Фильм с id=" + id + " не найден");
         log.info("Фильм (id=" + id + ")");
-        return filmStorage.getFilms().get(id);
+        return Optional.ofNullable(filmStorage.getFilm(id))
+                .orElseThrow(() -> new ObjectNotFoundException("Фильм с id " + id + "не найден"));
     }
 
-    public Map<Long, Film> getFilms() {
-        return filmStorage.getFilms();
+    public Collection <Film> getFilms() {
+       return filmStorage.getFilms();
     }
 
-    public List<Film> getPopularFilms(Optional<Long> count) {
-        Collection<Film> films = filmStorage.getFilms().values();
-        log.info("Получено " + (count.isPresent() ? count.get() : 10) + " популярных фильмов");
-        return films.stream()
-                .sorted((film1, film2) -> film2.getFans().size() - film1.getFans().size())
-                .limit(count.isPresent() ? count.get() : 10)
-                .collect(Collectors.toList());
+    public Collection<Film> getPopularFilms(long count) {
+       return filmStorage.getPopularFilms(count);
     }
 
-    public Film like(long filmId, long userId) {
-        if (!filmStorage.getFilms().containsKey(filmId))
-            throw new ObjectNotFoundException("Фильм с id=" + filmId + " не найден");
-        if (!userStorage.getUsers().containsKey(userId))
-            throw new ObjectNotFoundException("Пользователь с id=" + userId + " не найден");
-        Film film = filmStorage.getFilms().get(filmId);
-        if (!film.getFans().contains(userId))
-            film.getFans().add(userId);
-        log.info("Пользователь (id=" + userId + ") поставил лайк фильму (id=" + filmId + ")");
-        return film;
+    public void like(long filmId, long userId) {
+        filmStorage.like(filmId, userId);
     }
 
-    public Film dislike(long filmId, long userId) {
-        if (!filmStorage.getFilms().containsKey(filmId))
-            throw new ObjectNotFoundException("Фильм с id=" + filmId + " не найден");
-        if (!userStorage.getUsers().containsKey(userId))
-            throw new ObjectNotFoundException("Пользователь с id=" + userId + " не найден");
-        Film film = filmStorage.getFilms().get(filmId);
-        if (film.getFans().contains(userId))
-            film.getFans().remove(userId);
-        log.info("Пользователь (id=" + userId + ") убрал лайк с фильма (id=" + filmId + ")");
-        return film;
+    public void dislike(long filmId, long userId) {
+        filmStorage.dislike(filmId, userId);
     }
 }
