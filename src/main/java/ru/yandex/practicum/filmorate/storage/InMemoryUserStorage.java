@@ -47,7 +47,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public void addFriend(long userId, long friendId) {
-        if(userId < 0 || friendId < 0) {
+        if (userId < 0 || friendId < 0) {
             throw new ObjectNotFoundException("id Пользователя/друга не может ыбть отрицательным");
         }
         User user = users.get(userId);
