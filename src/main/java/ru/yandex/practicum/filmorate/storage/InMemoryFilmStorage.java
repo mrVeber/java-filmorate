@@ -62,6 +62,9 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public void dislike(long filmId, long userId) {
+        if (filmId < 0 || userId < 0) {
+            throw new ObjectNotFoundException("id фильма/юзера не может быть отрицательным!");
+        }
         Film film = films.get(filmId);
         film.deleteLike(userId);
     }

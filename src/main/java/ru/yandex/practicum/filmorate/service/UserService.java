@@ -26,7 +26,9 @@ public class UserService {
     }
 
     public User getUser(long id) {
-       return userStorage.getUser(id).orElseThrow(() -> new ObjectNotFoundException("Пользователя с таким id" + id + "нет"));
+        log.debug("Пользователь (id=" + id + ")");
+       return Optional.ofNullable(userStorage.getUser(id))
+               .orElseThrow(() -> new ObjectNotFoundException("Пользователя с идентификатором " + id + " нет!"));
     }
 
     public Collection<User> getUsers() {

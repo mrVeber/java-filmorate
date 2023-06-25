@@ -26,7 +26,7 @@ public class FilmService {
     }
 
     public Film getFilm(long id) {
-        log.info("Фильм (id=" + id + ")");
+        log.debug("Фильм (id=" + id + ")");
         return filmStorage.getFilm(id)
                 .orElseThrow(() -> new ObjectNotFoundException("Фильм с id " + id + "не найден"));
     }

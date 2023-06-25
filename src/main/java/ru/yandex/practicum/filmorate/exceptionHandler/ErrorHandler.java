@@ -8,8 +8,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.yandex.practicum.filmorate.exception.*;
 
-import javax.validation.ConstraintViolationException;
-
 @Slf4j
 @RestControllerAdvice
 public class ErrorHandler {
@@ -32,11 +30,5 @@ public class ErrorHandler {
     public ResponseBody handleObjectNotFoundException(final Exception e) {
         log.debug(e.getMessage());
         return new ResponseBody(e.getClass().getName(), e.getMessage());
-    }
-
-    @ExceptionHandler
-    public ResponseEntity<String> exc(ConstraintViolationException ex) {
-        log.info("Код ошибки: 400");
-        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }

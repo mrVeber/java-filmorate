@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storage;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import java.util.*;
 
@@ -40,24 +41,34 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public Optional<User> getUser(long userId) {
-        return Optional.ofNullable(users.get(userId));
+    public User getUser(long id) {
+        return users.get(id);
     }
 
     @Override
     public void addFriend(long userId, long friendId) {
+        if(userId < 0 || friendId < 0) {
+            throw new ObjectNotFoundException("id Пользователя/друга не может ыбть отрицательным");
+        }
         User user = users.get(userId);
         User friend = users.get(friendId);
-        user.addFriend(friendId);
-        friend.addFriend(userId);
+        if (!user.getFriends().contains(friend.getId())) {
+            user.addFriend(friendId);
+            friend.addFriend(userId);
+        } else {
+            throw new ObjectNotFoundException("Пользователь с так id=" + id + "уже у вас в друзьях");
+        }
     }
 
     @Override
     public void deleteFriend(long userId, long friendId) {
         User user = users.get(userId);
         User friend = users.get(friendId);
-        user.deleteFriends(friendId);
-        friend.deleteFriends(userId);
+        if (user.getFriends().contains(friendId)) {
+            user.deleteFriends(friendId);
+            friend.deleteFriends(userId);
+        } else {
+            throw new ValidationException("Пользователь с Id=" + id + " уже удалён");
+        }
     }
-
 }
