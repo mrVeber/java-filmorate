@@ -1,23 +1,19 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import org.springframework.beans.factory.annotation.Autowired;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class UserService {
-    private UserStorage userStorage;
-
-    @Autowired
-    public UserService(InMemoryUserStorage userStorage) {
-        this.userStorage = userStorage;
-    }
+    private final UserStorage userStorage;
 
     public void addUser(User user) {
         checkUser(user);
@@ -30,8 +26,7 @@ public class UserService {
     }
 
     public User getUser(long id) {
-       return Optional.ofNullable(userStorage.getUser(id))
-               .orElseThrow(() -> new ObjectNotFoundException("Пользователь с идентификатором " + id + "не найден"));
+       return userStorage.getUser(id).orElseThrow(() -> new ObjectNotFoundException("Пользователя с таким id" + id + "нет"));
     }
 
     public Collection<User> getUsers() {
@@ -40,26 +35,18 @@ public class UserService {
 
     public Collection<User> getFriends(long id) {
         User user = getUser(id);
-        Collection<User> friends = new ArrayList<>();
-        for (long ids : user.getFriends()) {
-            friends.add(getUser(ids));
-        }
-        return friends;
+        return user.getFriends().stream()
+                .map(this::getUser)
+                .collect(Collectors.toList());
     }
 
     public Collection<User> getCommonFriends(long id, long otherId) {
         User user = getUser(id);
         User otherUser = getUser(otherId);
-        Collection<User> commonFriends = new ArrayList<>();
-        if (user.getFriends() == null || otherUser.getFriends() == null) {
-            return Collections.emptyList();
-        }
-        for (long ids : user.getFriends()) {
-            if (otherUser.getFriends().contains(ids)) {
-                commonFriends.add(getUser(ids));
-            }
-        }
-        return commonFriends;
+        return user.getFriends().stream()
+                .filter(otherUser.getFriends()::contains)
+                .map(this::getUser)
+                .collect(Collectors.toList());
     }
 
     public void addFriend(long id, long friendId) {
@@ -82,9 +69,7 @@ public class UserService {
     }
 
     private void validateId(long userId, long friendId) {
-        Optional.ofNullable(userStorage.getUser(userId))
-                .orElseThrow(() -> new ObjectNotFoundException("Пользователь с идентификатором " + userId + " не зарегистрирован!"));
-        Optional.ofNullable(userStorage.getUser(friendId))
-                .orElseThrow(() -> new ObjectNotFoundException("Пользователь с идентификатором " + friendId + " не зарегистрирован!"));
+        userStorage.getUser(userId);
+        userStorage.getUser(friendId);
     }
 }

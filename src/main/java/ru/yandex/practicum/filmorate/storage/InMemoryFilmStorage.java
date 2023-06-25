@@ -23,9 +23,7 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public void deleteFilm(long id) {
-        if (!films.containsKey(id))
-            throw new ObjectNotFoundException("Фильм с id=" + id + " не найден");
-        films.remove(id);
+        if (films.remove(id) == null) throw new ObjectNotFoundException("Фильм с id=" + id + "не найден");
         log.debug("Удалён фильм: id= {}", id);
     }
 
@@ -38,22 +36,18 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Collection<Film> getFilms() {
-        Collection<Film> allFilms = films.values();
-        if (allFilms.isEmpty()) {
-            allFilms.addAll(films.values());
-        }
+    public List<Film> getFilms() {
         log.debug("Отправлены все фильмы");
-        return allFilms;
+        return new ArrayList<>(films.values());
     }
 
     @Override
-    public Film getFilm(long id) {
-        return films.get(id);
+    public Optional<Film> getFilm(long id) {
+        return Optional.ofNullable(films.get(id));
     }
 
     @Override
-    public Collection<Film> getPopularFilms(long size) {
+    public Set<Film> getPopularFilms(long size) {
         return getFilms().stream()
                 .sorted((f1, f2) -> f2.getLikes().size() - f1.getLikes().size())
                 .limit(size)
@@ -64,13 +58,11 @@ public class InMemoryFilmStorage implements FilmStorage {
     public void like(long filmId, long userId) {
         Film film = films.get(filmId);
         film.addLike(userId);
-        updateFilm(film);
     }
 
     @Override
     public void dislike(long filmId, long userId) {
         Film film = films.get(filmId);
         film.deleteLike(userId);
-        updateFilm(film);
     }
 }

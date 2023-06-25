@@ -2,16 +2,12 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 import java.util.Collection;
-import java.util.Optional;
 
 @Slf4j
 @Service
@@ -20,12 +16,6 @@ public class FilmService {
 
     private final FilmStorage filmStorage;
     private final UserStorage userStorage;
-
-    @Autowired
-    public FilmService(InMemoryFilmStorage filmStorage, InMemoryUserStorage userStorage) {
-        this.filmStorage = filmStorage;
-        this.userStorage = userStorage;
-    }
 
     public void createFilm(Film film) {
         filmStorage.addFilm(film);
@@ -37,7 +27,7 @@ public class FilmService {
 
     public Film getFilm(long id) {
         log.info("Фильм (id=" + id + ")");
-        return Optional.ofNullable(filmStorage.getFilm(id))
+        return filmStorage.getFilm(id)
                 .orElseThrow(() -> new ObjectNotFoundException("Фильм с id " + id + "не найден"));
     }
 
@@ -60,9 +50,7 @@ public class FilmService {
     }
 
     private void validateLike(long filmId, long userId) {
-        Optional.ofNullable(filmStorage.getFilm(filmId))
-                .orElseThrow(() -> new ObjectNotFoundException("Фильм с идентификатором " + filmId + " не зарегистрирован!"));
-        Optional.ofNullable(userStorage.getUser(userId))
-                .orElseThrow(() -> new ObjectNotFoundException("Пользователь с идентификатором " + userId + " не зарегистрирован!"));
+        filmStorage.getFilm(filmId);
+        userStorage.getUser(userId);
     }
 }

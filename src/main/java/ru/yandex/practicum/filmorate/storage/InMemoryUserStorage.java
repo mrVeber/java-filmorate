@@ -21,9 +21,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public void deleteUser(long id) {
-        if (!users.containsKey(id))
-            throw new ObjectNotFoundException("Пользователь с id=" + id + "не найден");
-        users.remove(id);
+        if (users.remove(id) == null ) throw new ObjectNotFoundException("Пользователь с id=" + id + "не найден");
         log.debug("Удалён пользователь c id {}", id);
     }
 
@@ -36,18 +34,14 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public Collection<User> getUsers() {
-        Collection<User> allUsers = users.values();
+    public List<User> getUsers() {
         log.debug("Отправлены все пользователи");
-        if (allUsers.isEmpty()) {
-            allUsers.addAll(users.values());
-        }
-        return allUsers;
+        return new ArrayList<>(users.values());
     }
 
     @Override
-    public User getUser(long userId) {
-        return users.get(userId);
+    public Optional<User> getUser(long userId) {
+        return Optional.ofNullable(users.get(userId));
     }
 
     @Override
@@ -56,8 +50,6 @@ public class InMemoryUserStorage implements UserStorage {
         User friend = users.get(friendId);
         user.addFriend(friendId);
         friend.addFriend(userId);
-        updateUser(user);
-        updateUser(friend);
     }
 
     @Override
@@ -66,8 +58,6 @@ public class InMemoryUserStorage implements UserStorage {
         User friend = users.get(friendId);
         user.deleteFriends(friendId);
         friend.deleteFriends(userId);
-        updateUser(user);
-        updateUser(friend);
     }
 
 }
