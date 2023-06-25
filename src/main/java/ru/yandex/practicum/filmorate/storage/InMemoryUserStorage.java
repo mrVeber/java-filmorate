@@ -21,7 +21,7 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public void deleteUser(long id) {
-        if (users.remove(id) == null ) throw new ObjectNotFoundException("Пользователь с id=" + id + "не найден");
+        if (users.remove(id) == null) throw new ObjectNotFoundException("Пользователь с id=" + id + "не найден");
         log.debug("Удалён пользователь c id {}", id);
     }
 
