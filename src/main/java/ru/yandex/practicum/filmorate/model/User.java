@@ -1,9 +1,11 @@
 package ru.yandex.practicum.filmorate.model;
 
-
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import javax.validation.constraints.*;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -11,7 +13,7 @@ import java.time.LocalDate;
 @Builder(toBuilder = true)
 public class User {
     @PositiveOrZero
-    private int id;
+    private long id;
     @NotBlank
     @Email
     private String email;
@@ -22,4 +24,14 @@ public class User {
     @NotNull
     @PastOrPresent
     private LocalDate birthday;
+    @JsonIgnore
+    private List<Long> friends = new ArrayList<>();
+
+    public void addFriend(long id) {
+        friends.add(id);
+    }
+
+    public void deleteFriends(long id) {
+        friends.remove(id);
+    }
 }
