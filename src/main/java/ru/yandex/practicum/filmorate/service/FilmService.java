@@ -2,16 +2,12 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
+import ru.yandex.practicum.filmorate.storage.*;
+
 import java.util.Collection;
-import java.util.Optional;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -19,50 +15,37 @@ import java.util.Optional;
 public class FilmService {
 
     private final FilmStorage filmStorage;
-    private final UserStorage userStorage;
 
-    @Autowired
-    public FilmService(InMemoryFilmStorage filmStorage, InMemoryUserStorage userStorage) {
-        this.filmStorage = filmStorage;
-        this.userStorage = userStorage;
+    public Collection<Film> findAll() {
+        log.info("Список фильмов отправлен");
+        return filmStorage.findAll();
     }
 
-    public void createFilm(Film film) {
-        filmStorage.addFilm(film);
+    public Film create(Film film) {
+        return filmStorage.create(film);
     }
 
-    public void updateFilm(Film film) {
-        filmStorage.updateFilm(film);
+    public Film update(Film film) {
+        return filmStorage.update(film);
     }
 
-    public Film getFilm(long id) {
-        log.info("Фильм (id=" + id + ")");
-        return Optional.ofNullable(filmStorage.getFilm(id))
-                .orElseThrow(() -> new ObjectNotFoundException("Фильм с id " + id + "не найден"));
+    public Film getById(int id) {
+        return filmStorage.getById(id);
     }
 
-    public Collection<Film> getFilms() {
-       return filmStorage.getFilms();
+    public Film deleteById(int id) {
+        return  filmStorage.deleteById(id);
     }
 
-    public Collection<Film> getPopularFilms(long count) {
-       return filmStorage.getPopularFilms(count);
+    public Film addLike(int filmId, int userId) {
+        return filmStorage.addLike(filmId, userId);
     }
 
-    public void like(long filmId, long userId) {
-        validateLike(filmId,userId);
-        filmStorage.like(filmId, userId);
+    public Film removeLike(int filmId, int userId) {
+        return filmStorage.removeLike(filmId, userId);
     }
 
-    public void dislike(long filmId, long userId) {
-        validateLike(filmId,userId);
-        filmStorage.dislike(filmId, userId);
-    }
-
-    private void validateLike(long filmId, long userId) {
-        Optional.ofNullable(filmStorage.getFilm(filmId))
-                .orElseThrow(() -> new ObjectNotFoundException("Фильм с идентификатором " + filmId + " не зарегистрирован!"));
-        Optional.ofNullable(userStorage.getUser(userId))
-                .orElseThrow(() -> new ObjectNotFoundException("Пользователь с идентификатором " + userId + " не зарегистрирован!"));
+    public List<Film> getBestFilms(int count) {
+        return filmStorage.getBestFilms(count);
     }
 }

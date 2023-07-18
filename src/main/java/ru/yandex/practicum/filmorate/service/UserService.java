@@ -1,90 +1,57 @@
 package ru.yandex.practicum.filmorate.service;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import org.springframework.beans.factory.annotation.Autowired;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 import java.util.*;
 
-@Slf4j
 @Service
+@RequiredArgsConstructor
 public class UserService {
-    private UserStorage userStorage;
 
-    @Autowired
-    public UserService(InMemoryUserStorage userStorage) {
-        this.userStorage = userStorage;
+    private final UserStorage userStorage;
+
+    public Collection<User> findAll() {
+        return userStorage.findAll();
     }
 
-    public void addUser(User user) {
-        checkUser(user);
-        userStorage.addUser(user);
+    public User create(User user) {
+        validate(user);
+        return userStorage.create(user);
     }
 
-    public void updateUser(User user) {
-        checkUser(user);
-        userStorage.updateUser(user);
+    public User update(User user) {
+        validate(user);
+        return userStorage.update(user);
     }
 
-    public User getUser(long id) {
-       return Optional.ofNullable(userStorage.getUser(id))
-               .orElseThrow(() -> new ObjectNotFoundException("Пользователь с идентификатором " + id + "не найден"));
+    public User getById(int id) {
+        return userStorage.getById(id);
     }
 
-    public Collection<User> getUsers() {
-        return userStorage.getUsers();
+    public User deleteById(int id) {
+        return userStorage.deleteById(id);
+
     }
 
-    public Collection<User> getFriends(long id) {
-        User user = getUser(id);
-        Collection<User> friends = new ArrayList<>();
-        for (long ids : user.getFriends()) {
-            friends.add(getUser(ids));
-        }
-        return friends;
+    public List<Integer> addFriendship(int firstId, int secondId) {
+        return userStorage.addFriendship(firstId, secondId);
     }
 
-    public Collection<User> getCommonFriends(long id, long otherId) {
-        User user = getUser(id);
-        User otherUser = getUser(otherId);
-        Collection<User> commonFriends = new ArrayList<>();
-        if (user.getFriends() == null || otherUser.getFriends() == null) {
-            return Collections.emptyList();
-        }
-        for (long ids : user.getFriends()) {
-            if (otherUser.getFriends().contains(ids)) {
-                commonFriends.add(getUser(ids));
-            }
-        }
-        return commonFriends;
+    public List<Integer> removeFriendship(int firstId, int secondId) {
+        return userStorage.removeFriendship(firstId, secondId);
     }
 
-    public void addFriend(long id, long friendId) {
-        validateId(id, friendId);
-        userStorage.addFriend(id, friendId);
-        log.debug("Пользователи id= {} / {} подружились", id, friendId);
+    public List<User> getFriendsListById(int id) {
+        return userStorage.getFriendsListById(id);
     }
 
-    public void deleteFriend(long id, long friendId) {
-        validateId(id, friendId);
-        userStorage.deleteFriend(id, friendId);
-        log.debug("Пользователи id= {} / {} перестали быть друзьями",id, friendId);
+    public List<User> getCommonFriendsList(int firstId, int secondId) {
+        return userStorage.getCommonFriendsList(firstId, secondId);
     }
 
-    private User checkUser(User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
-        return user;
-    }
-
-    private void validateId(long userId, long friendId) {
-        Optional.ofNullable(userStorage.getUser(userId))
-                .orElseThrow(() -> new ObjectNotFoundException("Пользователь с идентификатором " + userId + " не зарегистрирован!"));
-        Optional.ofNullable(userStorage.getUser(friendId))
-                .orElseThrow(() -> new ObjectNotFoundException("Пользователь с идентификатором " + friendId + " не зарегистрирован!"));
+    private void validate(User user) {
+        if (user.getName() == null || user.getName().isBlank()) user.setName(user.getLogin());
     }
 }
