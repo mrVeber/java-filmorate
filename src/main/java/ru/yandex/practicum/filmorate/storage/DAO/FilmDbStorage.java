@@ -33,7 +33,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Film create(Film film) {
+    public Film add(Film film) {
         final String sqlQuery = "INSERT INTO films (name, description, release_date, duration) " +
                 "VALUES (?, ?, ?, ?)";
         KeyHolder generatedId = new GeneratedKeyHolder();

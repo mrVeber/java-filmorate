@@ -21,8 +21,8 @@ public class FilmService {
         return filmStorage.findAll();
     }
 
-    public Film create(Film film) {
-        return filmStorage.create(film);
+    public Film add(Film film) {
+        return filmStorage.add(film);
     }
 
     public Film update(Film film) {

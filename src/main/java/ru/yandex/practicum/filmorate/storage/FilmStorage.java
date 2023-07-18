@@ -9,7 +9,7 @@ public interface FilmStorage {
 
     Collection<Film> findAll();
 
-    Film create(Film film);
+    Film add(Film film);
 
     Film update(Film film);
 
