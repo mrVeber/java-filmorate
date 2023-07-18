@@ -112,7 +112,7 @@ public class FilmDbStorage implements FilmStorage {
         SqlRowSet filmRows = jdbcTemplate.queryForRowSet(checkQuery, id);
 
         if (!filmRows.next()) {
-            log.warn("Фильм с идентификатором {} не найден.", id);
+            log.warn("Фильм с id {} не найден.", id);
             throw new ObjectNotFoundException("Фильм не найден");
         }
 
@@ -151,7 +151,7 @@ public class FilmDbStorage implements FilmStorage {
                 "WHERE film_id = ? AND user_id = ?";
 
         jdbcTemplate.update(sqlQuery, filmId, userId);
-        log.info("Пользователь {} удалил лайк к фильму {}", userId, filmId);
+        log.info("Пользователь c id {} удалил лайк к фильму {}", userId, filmId);
         return getById(filmId);
     }
 
@@ -218,7 +218,7 @@ public class FilmDbStorage implements FilmStorage {
         SqlRowSet userRows = jdbcTemplate.queryForRowSet(checkUserQuery, userId);
 
         if (!filmRows.next() || !userRows.next()) {
-            log.warn("Фильм {} и(или) пользователь {} не найден.", filmId, userId);
+            log.warn("Фильм c id {} и(или) пользователь c id {} не найден.", filmId, userId);
             throw new ObjectNotFoundException("Фильм или пользователь не найдены");
         }
     }

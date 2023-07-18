@@ -67,7 +67,7 @@ public class UserDbStorage implements UserStorage {
 
         jdbcTemplate.update(sqlQuery,
                 user.getEmail(), user.getLogin(), user.getName(), user.getBirthday(), user.getId());
-        log.info("Пользователь {} обновлен", user.getId());
+        log.info("Пользователь c id {} обновлен", user.getId());
         return user;
     }
 
@@ -77,7 +77,7 @@ public class UserDbStorage implements UserStorage {
         SqlRowSet userRows = jdbcTemplate.queryForRowSet(sqlQuery, id);
 
         if (!userRows.next()) {
-            log.warn("Пользователь с идентификатором {} не найден.", id);
+            log.warn("Пользователь с id {} не найден.", id);
             throw new ObjectNotFoundException("Пользователь не найден");
         }
 
@@ -113,7 +113,7 @@ public class UserDbStorage implements UserStorage {
             jdbcTemplate.update(sqlForWriteQuery, followedId, followerId, FriendshipStatus.REQUIRED.toString());
         }
 
-        log.info("Пользователь {} подписался на {}", followedId, followerId);
+        log.info("Пользователь c id {} подписался на пользователя с id {}", followedId, followerId);
         return List.of(followedId, followerId);
     }
 
@@ -122,7 +122,7 @@ public class UserDbStorage implements UserStorage {
         final String sqlQuery = "DELETE FROM user_friends WHERE user_id = ? AND friend_id = ?";
 
         jdbcTemplate.update(sqlQuery, followedId, followerId);
-        log.info("Пользователь {} отписался от {}", followerId, followedId);
+        log.info("Пользователь c id {} отписался от пользователя c id {}", followerId, followedId);
         return List.of(followedId, followerId);
     }
 
@@ -141,7 +141,7 @@ public class UserDbStorage implements UserStorage {
                 "LEFT JOIN user_friends mf on users.id = mf.friend_id " +
                 "where user_id = ? AND status LIKE 'REQUIRED'";
 
-        log.info("Запрос получения списка друзей пользователя {} выполнен", id);
+        log.info("Запрос получения списка друзей пользователя с id {} выполнен", id);
         return jdbcTemplate.query(sqlQuery, this::makeUser, id);
     }
 
@@ -177,7 +177,7 @@ public class UserDbStorage implements UserStorage {
         SqlRowSet followerRow = jdbcTemplate.queryForRowSet(check, followerId);
 
         if (!followingRow.next() || !followerRow.next()) {
-            log.warn("Пользователи с id {} и {} не найдены", followedId, followerId);
+            log.warn("Пользователи с id {} и c id {} не найдены", followedId, followerId);
             throw new ObjectNotFoundException("Пользователи не найдены");
         }
     }

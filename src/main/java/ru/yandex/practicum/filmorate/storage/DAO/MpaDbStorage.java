@@ -33,7 +33,7 @@ public class MpaDbStorage implements MpaStorage {
         SqlRowSet mpaRows = jdbcTemplate.queryForRowSet(sqlQuery, id);
 
         if (!mpaRows.next()) {
-            log.warn("Рейтинг {} не найден.", id);
+            log.warn("Рейтинг c id {} не найден.", id);
             throw new ObjectNotFoundException("Рейтинг не найден");
         }
 
