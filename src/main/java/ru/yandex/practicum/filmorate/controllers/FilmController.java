@@ -2,23 +2,39 @@ package ru.yandex.practicum.filmorate.controllers;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+ add-database
+
+
+import org.springframework.validation.annotation.Validated;
+ main
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
 import java.util.Collection;
 import java.util.List;
 @RestController
+ add-database
 @RequiredArgsConstructor
+
+ main
 @RequestMapping("/films")
 @Slf4j
+@RequiredArgsConstructor
 public class FilmController {
 
     private final FilmService filmService;
 
+ add-database
     @GetMapping
     public Collection<Film> findAll() {
         return filmService.findAll();
+
+    @GetMapping("/{id}")
+    public Film getFilm(@PathVariable long id) {
+        return filmService.getFilm(id);
+ main
     }
 
     @PostMapping
@@ -26,9 +42,16 @@ public class FilmController {
         return filmService.add(film);
     }
 
+ add-database
     @PutMapping
     public Film put(@Valid @RequestBody Film film) {
         return filmService.update(film);
+
+    @GetMapping("/popular")
+    @Validated
+    public Collection<Film> getPopularFilms(@Positive @RequestParam(defaultValue = "10") long count) {
+        return filmService.getPopularFilms(count);
+ main
     }
 
     @GetMapping("/{id}")
