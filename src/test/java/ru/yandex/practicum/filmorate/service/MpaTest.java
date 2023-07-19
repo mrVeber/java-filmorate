@@ -17,6 +17,7 @@ import java.util.Arrays;
 public class MpaTest {
 
     private final MpaService mpaService;
+    
     @Test
     public void testGetAllMpa() {
         Collection<Mpa> mpaRatingStorage = mpaService.findAll();
