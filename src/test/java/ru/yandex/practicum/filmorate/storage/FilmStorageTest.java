@@ -180,7 +180,7 @@ public class FilmStorageTest {
                 .birthday(LocalDate.of(2000, 12, 22))
                 .build();
 
-        User user2= User.builder()
+        User user2 = User.builder()
                 .id(1)
                 .email("example@mail.mail")
                 .login("login")
