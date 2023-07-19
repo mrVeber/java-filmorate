@@ -17,17 +17,17 @@ public class FilmController {
     private final FilmService filmService;
 
     @GetMapping
-    public Collection<Film> findAll() {
+    public Collection<Film> getAll() {
         return filmService.findAll();
     }
 
     @PostMapping
-    public Film create(@Valid @RequestBody Film film) {
+    public Film add(@Valid @RequestBody Film film) {
         return filmService.add(film);
     }
 
     @PutMapping
-    public Film put(@Valid @RequestBody Film film) {
+    public Film update(@Valid @RequestBody Film film) {
         return filmService.update(film);
     }
 

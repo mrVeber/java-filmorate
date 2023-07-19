@@ -25,7 +25,7 @@ public class UserDbStorage implements UserStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public Collection<User> findAll() {
+    public Collection<User> getAll() {
         final String sqlQuery = "SELECT * FROM users";
 
         log.info("Список пользователей отправлен");
@@ -33,7 +33,7 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public User create(User user) {
+    public User add(User user) {
         final String sqlQuery = "INSERT INTO users (EMAIL, LOGIN, NAME, BIRTHDAY) " +
                 "VALUES ( ?, ?, ?, ?)";
         KeyHolder generatedId = new GeneratedKeyHolder();

@@ -12,13 +12,13 @@ public class UserService {
 
     private final UserStorage userStorage;
 
-    public Collection<User> findAll() {
-        return userStorage.findAll();
+    public Collection<User> getAll() {
+        return userStorage.getAll();
     }
 
-    public User create(User user) {
+    public User add(User user) {
         validate(user);
-        return userStorage.create(user);
+        return userStorage.add(user);
     }
 
     public User update(User user) {

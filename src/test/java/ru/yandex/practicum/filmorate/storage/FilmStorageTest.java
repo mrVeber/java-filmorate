@@ -36,14 +36,14 @@ public class FilmStorageTest {
 
     @Test
     void addFilmTest() {
-        inDbFilmStorage.create(film);
+        inDbFilmStorage.add(film);
         AssertionsForClassTypes.assertThat(film).extracting("id").isNotNull();
         AssertionsForClassTypes.assertThat(film).extracting("name").isNotNull();
     }
 
     @Test
     void updateFilmTest() {
-        inDbFilmStorage.create(film);
+        inDbFilmStorage.add(film);
         film.setName("testUpdateFilm");
         film.setDescription("testUpdateDesc");
         inDbFilmStorage.update(film);
@@ -54,14 +54,14 @@ public class FilmStorageTest {
 
     @Test
     void getFilmTest() {
-        inDbFilmStorage.create(film);
+        inDbFilmStorage.add(film);
         inDbFilmStorage.getById(film.getId());
         AssertionsForClassTypes.assertThat(inDbFilmStorage.getById(film.getId())).hasFieldOrPropertyWithValue("id", film.getId());
     }
 
     @Test
     void removeFilmTest() {
-        inDbFilmStorage.create(film);
+        inDbFilmStorage.add(film);
         inDbFilmStorage.deleteById(film.getId());
         AssertionsForClassTypes.assertThat(film).hasFieldOrPropertyWithValue("id", film.getId());
     }
@@ -99,8 +99,8 @@ public class FilmStorageTest {
                 .genres(null)
                 .build();
 
-        inDbUserStorage.create(user);
-        inDbFilmStorage.create(filmForLike);
+        inDbUserStorage.add(user);
+        inDbFilmStorage.add(filmForLike);
         System.out.println(user.getId() + " - Это юзер Id!");
         System.out.println(filmForLike.getId() + " - Это фильм Id!");
         inDbFilmStorage.addLike(filmForLike.getId(), user.getId());
@@ -129,9 +129,9 @@ public class FilmStorageTest {
                 .genres(null)
                 .build();
 
-        inDbUserStorage.create(user1);
-        inDbFilmStorage.create(filmForLike);
-        inDbFilmStorage.create(filmForLike);
+        inDbUserStorage.add(user1);
+        inDbFilmStorage.add(filmForLike);
+        inDbFilmStorage.add(filmForLike);
         inDbFilmStorage.addLike(filmForLike.getId(), user1.getId());
         inDbFilmStorage.removeLike(filmForLike.getId(), user1.getId());
         assertThat(inDbFilmStorage.getBestFilms(filmForLike.getId()).isEmpty());
@@ -160,9 +160,9 @@ public class FilmStorageTest {
                 .genres(null)
                 .build();
 
-        inDbFilmStorage.create(film);
-        inDbFilmStorage.create(filmForLike);
-        inDbFilmStorage.create(otherFilmForLike);
+        inDbFilmStorage.add(film);
+        inDbFilmStorage.add(filmForLike);
+        inDbFilmStorage.add(otherFilmForLike);
 
         User user = User.builder()
                 .id(1)
@@ -188,9 +188,9 @@ public class FilmStorageTest {
                 .birthday(LocalDate.of(2000, 12, 22))
                 .build();
 
-        inDbUserStorage.create(user);
-        inDbUserStorage.create(user1);
-        inDbUserStorage.create(user2);
+        inDbUserStorage.add(user);
+        inDbUserStorage.add(user1);
+        inDbUserStorage.add(user2);
 
         inDbFilmStorage.addLike(film.getId(), user.getId());
         inDbFilmStorage.addLike(filmForLike.getId(), user1.getId());
