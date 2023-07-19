@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.storageTest;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import org.springframework.beans.factory.annotation.Autowired;
