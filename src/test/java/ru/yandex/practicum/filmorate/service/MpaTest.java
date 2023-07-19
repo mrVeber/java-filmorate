@@ -15,9 +15,8 @@ import java.util.Arrays;
 @AutoConfigureTestDatabase
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class MpaTest {
-
     private final MpaService mpaService;
-    
+
     @Test
     public void testGetAllMpa() {
         Collection<Mpa> mpaRatingStorage = mpaService.findAll();
