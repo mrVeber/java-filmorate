@@ -204,7 +204,7 @@ public class UserStorageTest {
 
         inDbUserStorage.add(user);
         inDbUserStorage.deleteById(user.getId());
-        Assertions.assertThatThrownBy(()->inDbUserStorage.getById(user.getId()))
+        Assertions.assertThatThrownBy(() -> inDbUserStorage.getById(user.getId()))
                 .isInstanceOf(ObjectNotFoundException.class);
     }
 }
