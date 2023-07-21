@@ -7,38 +7,25 @@ import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.*;
-
-import java.util.Collection;
-import java.util.List;
+import ru.yandex.practicum.filmorate.storage.LikeStorage;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class FilmService {
+public class LikeService {
 
-    private final FilmStorage filmStorage;
+    private final LikeStorage likeStorage;
+
     private final JdbcTemplate jdbcTemplate;
 
-    public Collection<Film> findAll() {
-        log.info("Список фильмов отправлен");
-        return filmStorage.findAll();
+    public Film addLike(int filmId, int userId) {
+        validate(filmId, userId);
+        return likeStorage.addLike(filmId, userId);
     }
 
-    public Film add(Film film) {
-        return filmStorage.add(film);
-    }
-
-    public Film update(Film film) {
-        return filmStorage.update(film);
-    }
-
-    public Film getById(int id) {
-        return filmStorage.getById(id);
-    }
-
-    public List<Film> getBestFilms(int count) {
-        return filmStorage.getBestFilms(count);
+    public Film removeLike(int filmId, int userId) {
+        validate(filmId, userId);
+        return likeStorage.removeLike(filmId, userId);
     }
 
     private void validate(int filmId, int userId) {

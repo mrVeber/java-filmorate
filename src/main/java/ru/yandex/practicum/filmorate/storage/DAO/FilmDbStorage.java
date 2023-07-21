@@ -8,10 +8,10 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
-import ru.yandex.practicum.filmorate.storage.FilmStorage;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
 
 import java.sql.*;
 import java.sql.Date;
@@ -125,7 +125,7 @@ public class FilmDbStorage implements FilmStorage {
     public Film deleteById(int id) {
         Film film = getById(id);
         final String genresSqlQuery = "DELETE FROM film_genre WHERE film_id = ?";
-        String mpaSqlQuery = "DELETE FROM mpa_films WHERE film_id = ?";
+        String mpaSqlQuery = "DELETE FROM mpa WHERE film_id = ?"; // old - "DELETE FROM mpa_films WHERE film_id = ?"
 
         jdbcTemplate.update(genresSqlQuery, id);
         jdbcTemplate.update(mpaSqlQuery, id);
@@ -133,26 +133,6 @@ public class FilmDbStorage implements FilmStorage {
 
         jdbcTemplate.update(sqlQuery, id);
         return film;
-    }
-
-    @Override
-    public Film addLike(int filmId, int userId) {
-        validate(filmId, userId);
-        final String sqlQuery = "INSERT INTO likes (film_id, user_id) VALUES (?, ?)";
-
-        jdbcTemplate.update(sqlQuery, filmId, userId);
-        return getById(filmId);
-    }
-
-    @Override
-    public Film removeLike(int filmId, int userId) {
-        validate(filmId, userId);
-        final String sqlQuery = "DELETE FROM likes " +
-                "WHERE film_id = ? AND user_id = ?";
-
-        jdbcTemplate.update(sqlQuery, filmId, userId);
-        log.info("Пользователь c id {} удалил лайк к фильму {}", userId, filmId);
-        return getById(filmId);
     }
 
     @Override
@@ -208,18 +188,5 @@ public class FilmDbStorage implements FilmStorage {
         final int id = resultSet.getInt("id");
         final String name = resultSet.getString("name");
         return new Mpa(id, name);
-    }
-
-    private void validate(int filmId, int userId) {
-        final String checkFilmQuery = "SELECT * FROM films WHERE id = ?";
-        final String checkUserQuery = "SELECT * FROM users WHERE id = ?";
-
-        SqlRowSet filmRows = jdbcTemplate.queryForRowSet(checkFilmQuery, filmId);
-        SqlRowSet userRows = jdbcTemplate.queryForRowSet(checkUserQuery, userId);
-
-        if (!filmRows.next() || !userRows.next()) {
-            log.warn("Фильм c id {} и(или) пользователь c id {} не найден.", filmId, userId);
-            throw new ObjectNotFoundException("Фильм или пользователь не найдены");
-        }
     }
 }

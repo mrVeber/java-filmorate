@@ -11,6 +11,7 @@ import java.util.*;
 public class UserService {
 
     private final UserStorage userStorage;
+    private final FriendService friendService;
 
     public Collection<User> getAll() {
         return userStorage.getAll();
@@ -36,11 +37,11 @@ public class UserService {
     }
 
     public List<Integer> addFriendship(int firstId, int secondId) {
-        return userStorage.addFriendship(firstId, secondId);
+        return friendService.addFriendship(firstId, secondId);
     }
 
     public List<Integer> removeFriendship(int firstId, int secondId) {
-        return userStorage.removeFriendship(firstId, secondId);
+        return friendService.removeFriendship(firstId, secondId);
     }
 
     public List<User> getFriendsListById(int id) {

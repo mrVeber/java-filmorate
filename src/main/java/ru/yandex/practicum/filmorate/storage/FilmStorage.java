@@ -17,9 +17,5 @@ public interface FilmStorage {
 
     Film deleteById(int id);
 
-    Film addLike(int filmId, int userId);
-
-    Film removeLike(int filmId, int userId);
-
     List<Film> getBestFilms(int count);
 }

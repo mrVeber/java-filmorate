@@ -4,8 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
-import ru.yandex.practicum.filmorate.storage.GenreStorage;
 import ru.yandex.practicum.filmorate.model.Genre;
+import ru.yandex.practicum.filmorate.storage.GenreStorage;
 import org.springframework.stereotype.Repository;
 import lombok.RequiredArgsConstructor;
 
@@ -23,7 +23,6 @@ public class GenreDbStorage implements GenreStorage {
     @Override
     public Collection<Genre> findAll() {
         String sqlQuery = "SELECT * FROM genre";
-
         return jdbcTemplate.query(sqlQuery, this::makeGenre);
     }
 
@@ -33,7 +32,7 @@ public class GenreDbStorage implements GenreStorage {
         SqlRowSet genreRows = jdbcTemplate.queryForRowSet(sqlQuery, id);
 
         if (!genreRows.next()) {
-            log.warn("Жанр c id {} не найден.", id);
+            log.info("Жанр c id {} не найден.", id);
             throw new ObjectNotFoundException("Жанр не найден");
 
         }
@@ -46,4 +45,5 @@ public class GenreDbStorage implements GenreStorage {
 
         return new Genre(id, nameGenre);
     }
+
 }

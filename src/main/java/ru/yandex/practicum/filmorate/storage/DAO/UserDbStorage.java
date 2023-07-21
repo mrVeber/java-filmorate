@@ -8,9 +8,8 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.jdbc.support.rowset.SqlRowSet;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
-import ru.yandex.practicum.filmorate.storage.UserStorage;
-import ru.yandex.practicum.filmorate.model.FriendshipStatus;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.UserStorage;
 
 import java.sql.*;
 import java.sql.Date;
@@ -98,35 +97,6 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public List<Integer> addFriendship(int followedId, int followerId) {
-        validate(followedId, followerId);
-        final String sqlForWriteQuery = "INSERT INTO user_friends (user_id, friend_id, status) " +
-                "VALUES (?, ?, ?)";
-        final String sqlForUpdateQuery = "UPDATE user_friends SET status = ? " +
-                "WHERE user_id = ? AND friend_id = ?";
-        final String checkMutualQuery = "SELECT * FROM user_friends WHERE user_id = ? AND friend_id = ?";
-        SqlRowSet userRows = jdbcTemplate.queryForRowSet(checkMutualQuery, followedId, followerId);
-
-        if (userRows.first()) {
-            jdbcTemplate.update(sqlForUpdateQuery, FriendshipStatus.CONFIRMED.toString(), followedId, followerId);
-        } else {
-            jdbcTemplate.update(sqlForWriteQuery, followedId, followerId, FriendshipStatus.REQUIRED.toString());
-        }
-
-        log.info("Пользователь c id {} подписался на пользователя с id {}", followedId, followerId);
-        return List.of(followedId, followerId);
-    }
-
-    @Override
-    public List<Integer> removeFriendship(int followedId, int followerId) {
-        final String sqlQuery = "DELETE FROM user_friends WHERE user_id = ? AND friend_id = ?";
-
-        jdbcTemplate.update(sqlQuery, followedId, followerId);
-        log.info("Пользователь c id {} отписался от пользователя c id {}", followerId, followedId);
-        return List.of(followedId, followerId);
-    }
-
-    @Override
     public List<User> getFriendsListById(int id) {
         final String checkQuery = "SELECT * FROM users WHERE id = ?";
         SqlRowSet followingRow = jdbcTemplate.queryForRowSet(checkQuery, id);
@@ -147,7 +117,6 @@ public class UserDbStorage implements UserStorage {
 
     @Override
     public List<User> getCommonFriendsList(int followedId, int followerId) {
-        validate(followedId, followerId);
         final String sqlQuery = "SELECT id, email, login, name, birthday " +
                 "FROM user_friends AS mf " +
                 "LEFT JOIN users u ON u.id = mf.friend_id " +
@@ -169,16 +138,5 @@ public class UserDbStorage implements UserStorage {
         LocalDate birthday = resultSet.getDate("birthday").toLocalDate();
 
         return new User(id, email, login, name, birthday);
-    }
-
-    private void validate(int followedId, int followerId) {
-        final String check = "SELECT * FROM users WHERE id = ?";
-        SqlRowSet followingRow = jdbcTemplate.queryForRowSet(check, followedId);
-        SqlRowSet followerRow = jdbcTemplate.queryForRowSet(check, followerId);
-
-        if (!followingRow.next() || !followerRow.next()) {
-            log.warn("Пользователи с id {} и c id {} не найдены", followedId, followerId);
-            throw new ObjectNotFoundException("Пользователи не найдены");
-        }
     }
 }

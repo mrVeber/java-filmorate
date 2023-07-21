@@ -21,8 +21,7 @@ public class GenresTest {
         Collection<Genre> genreStorage = genre.findAll();
         Assertions.assertThat(genreStorage)
                 .extracting(Genre::getName)
-                .containsAll(Arrays.asList("Комедия", "Драма", "Мультфильм", "Триллер", "Документальный", "Боевик"));
-    }
+                .containsAll(Arrays.asList("Комедия", "Драма", "Мультфильм", "Триллер", "Документальный", "Боевик"));}
 
     @Test
     public void testGetGenreById() {

@@ -25,6 +25,10 @@ public class Film {
     @Min(value = 1, message = "Неправильная продолжительность фильма")
     @Positive
     private long duration;
+    @NotNull
     private Mpa mpa;
     private List<Genre> genres;
+//    private Set<Genre> genres;
+//    private LinkedHashSet<Genre> genres;
+
 }
