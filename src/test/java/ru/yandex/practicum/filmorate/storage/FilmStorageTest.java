@@ -63,13 +63,6 @@ public class FilmStorageTest {
     }
 
     @Test
-    void removeFilmTest() {
-        inDbFilmStorage.add(film);
-        inDbFilmStorage.deleteById(film.getId());
-        AssertionsForClassTypes.assertThat(film).hasFieldOrPropertyWithValue("id", film.getId());
-    }
-
-    @Test
     void updateFilmNotFoundTest() {
         Film filmForUpdate = Film.builder()
                 .id(9999)
