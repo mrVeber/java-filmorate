@@ -1,13 +1,13 @@
 package ru.yandex.practicum.filmorate.storage.DAO;
 
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
-import org.springframework.jdbc.support.rowset.SqlRowSet;
-import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
+import org.springframework.stereotype.Repository;
+import ru.yandex.practicum.filmorate.exception.DataException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 
@@ -16,126 +16,109 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.util.*;
 
-@Slf4j
-@Component
-@RequiredArgsConstructor
+@Repository
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class UserDbStorage implements UserStorage {
 
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public Collection<User> getAll() {
-        final String sqlQuery = "SELECT * FROM users";
+    public List<User> findAll() {
+        String sql = "select * from USERS";
 
-        log.info("Список пользователей отправлен");
-        return jdbcTemplate.query(sqlQuery, this::makeUser);
+        return jdbcTemplate.query(sql, UserDbStorage::makeUser);
     }
 
     @Override
-    public User add(User user) {
-        final String sqlQuery = "INSERT INTO users (EMAIL, LOGIN, NAME, BIRTHDAY) " +
+    public User create(User user) {
+        String sql = "INSERT INTO users (email, login, name, birthday) " +
                 "VALUES ( ?, ?, ?, ?)";
-        KeyHolder generatedId = new GeneratedKeyHolder();
-
+        KeyHolder keyHolder = new GeneratedKeyHolder();
         jdbcTemplate.update(connection -> {
-            final PreparedStatement stmt = connection.prepareStatement(sqlQuery, new String[]{"id"});
+            PreparedStatement stmt = connection.prepareStatement(sql, new String[]{"user_id"});
             stmt.setString(1, user.getEmail());
             stmt.setString(2, user.getLogin());
             stmt.setString(3, user.getName());
             stmt.setDate(4, Date.valueOf(user.getBirthday()));
             return stmt;
-        }, generatedId);
+        }, keyHolder);
+        user.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
 
-        log.info("Пользователь с id {} отправлен", user.getId());
-        user.setId(generatedId.getKey().intValue());
         return user;
     }
 
     @Override
     public User update(User user) {
-        final String checkQuery = "SELECT * FROM users WHERE id = ?";
-        SqlRowSet userRows = jdbcTemplate.queryForRowSet(checkQuery, user.getId());
-
-        if (!userRows.next()) {
-            log.warn("Пользователь с id {} не найден", user.getId());
-            throw new ObjectNotFoundException("Пользователь не найден");
-        }
-
-        final String sqlQuery = "UPDATE users SET EMAIL = ?, LOGIN = ?, NAME = ?, BIRTHDAY = ? " +
-                "WHERE id = ?";
-
-        jdbcTemplate.update(sqlQuery,
+        String sql = "UPDATE users SET EMAIL = ?, LOGIN = ?, NAME = ?, BIRTHDAY = ? " +
+                "WHERE USER_ID = ?";
+        int result = jdbcTemplate.update(sql,
                 user.getEmail(), user.getLogin(), user.getName(), user.getBirthday(), user.getId());
-        log.info("Пользователь c id {} обновлен", user.getId());
+        if (result < 1) throw new DataException("Пользователь не найден в базе");
         return user;
     }
 
     @Override
-    public User getById(int id) {
-        final String sqlQuery = "SELECT * FROM users WHERE id = ?";
-        SqlRowSet userRows = jdbcTemplate.queryForRowSet(sqlQuery, id);
-
-        if (!userRows.next()) {
-            log.warn("Пользователь с id {} не найден.", id);
-            throw new ObjectNotFoundException("Пользователь не найден");
+    public Optional<User> getById(long id) {
+        String sql = "select * from USERS where USER_ID = ?";
+        try {
+            return Optional.ofNullable(jdbcTemplate.queryForObject(sql, UserDbStorage::makeUser, id));
+        } catch (DataAccessException e) {
+            return Optional.empty();
         }
-
-        final String checkQuery = "select * from users where id = ?";
-
-        log.info("Пользователь с id {} отправлен", id);
-        return jdbcTemplate.queryForObject(checkQuery, this::makeUser, id);
     }
 
     @Override
-    public User deleteById(int id) {
-        final String sqlQuery = "DELETE FROM users WHERE id = ?";
-        User user = getById(id);
-
-        jdbcTemplate.update(sqlQuery, id);
-        log.info("Пользователь с id {} удален", id);
-        return user;
+    public int deleteById(long id) {
+        String sql = "DELETE FROM users WHERE user_id = ?";
+        return jdbcTemplate.update(sql, id);
     }
 
     @Override
-    public List<User> getFriendsListById(int id) {
-        final String checkQuery = "SELECT * FROM users WHERE id = ?";
-        SqlRowSet followingRow = jdbcTemplate.queryForRowSet(checkQuery, id);
+    public List<Long> followUser(long followerId, long followingId) {
+        String sqlForWrite = "MERGE INTO FRIENDSHIP (USER_ID, FRIEND_ID) " +
+                "VALUES (?, ?)";
+        jdbcTemplate.update(sqlForWrite, followerId, followingId);
+        return List.of(followerId, followingId);
+    }
 
-        if (!followingRow.next()) {
-            log.warn("Пользователь с id {} не найден", id);
-            throw new ObjectNotFoundException("Пользователь не найден");
-        }
+    @Override
+    public List<Long> unfollowUser(long followerId, long followingId) {
+        String sql = "DELETE FROM FRIENDSHIP WHERE USER_ID = ? AND FRIEND_ID = ?";
+        jdbcTemplate.update(sql, followerId, followingId);
 
-        final String sqlQuery = "SELECT id, email, login, name, birthday " +
+        return List.of(followerId, followingId);
+    }
+
+    @Override
+    public List<User> getFriendsListById(long id) {
+        String sql = "SELECT USERS.USER_ID, email, login, name, birthday " +
                 "FROM USERS " +
-                "LEFT JOIN user_friends mf on users.id = mf.friend_id " +
-                "where user_id = ? AND status LIKE 'REQUIRED'";
+                "LEFT JOIN friendship f on users.USER_ID = f.friend_id " +
+                "where f.user_id = ?";
 
-        log.info("Запрос получения списка друзей пользователя с id {} выполнен", id);
-        return jdbcTemplate.query(sqlQuery, this::makeUser, id);
+        return jdbcTemplate.query(sql, UserDbStorage::makeUser, id);
     }
 
     @Override
-    public List<User> getCommonFriendsList(int followedId, int followerId) {
-        final String sqlQuery = "SELECT id, email, login, name, birthday " +
-                "FROM user_friends AS mf " +
-                "LEFT JOIN users u ON u.id = mf.friend_id " +
-                "WHERE mf.user_id = ? AND mf.friend_id IN ( " +
+    public List<User> getCommonFriendsList(long firstId, long secondId) {
+        String sql = "SELECT u.USER_ID, email, login, name, birthday " +
+                "FROM friendship AS f " +
+                "LEFT JOIN users u ON u.USER_ID = f.friend_id " +
+                "WHERE f.user_id = ? AND f.friend_id IN ( " +
                 "SELECT friend_id " +
-                "FROM user_friends AS mf " +
-                "LEFT JOIN users AS u ON u.id = mf.friend_id " +
-                "WHERE mf.user_id = ? )";
+                "FROM friendship AS f " +
+                "LEFT JOIN users AS u ON u.USER_ID = f.friend_id " +
+                "WHERE f.user_id = ? )";
 
-        log.info("Список общих друзей {} и {} отправлен", followedId, followerId);
-        return jdbcTemplate.query(sqlQuery, this::makeUser, followedId, followerId);
+        return jdbcTemplate.query(sql, UserDbStorage::makeUser, firstId, secondId);
     }
 
-    private User makeUser(ResultSet resultSet, int rowNum) throws SQLException {
-        int id = resultSet.getInt("id");
-        String email = resultSet.getString("email");
-        String login = resultSet.getString("login");
-        String name = resultSet.getString("name");
-        LocalDate birthday = resultSet.getDate("birthday").toLocalDate();
+    static User makeUser(ResultSet rs, int rowNum) throws SQLException {
+        long id = rs.getLong("user_id");
+        String email = rs.getString("email");
+        String login = rs.getString("login");
+        String name = rs.getString("name");
+        LocalDate birthday = rs.getDate("birthday").toLocalDate();
 
         return new User(id, email, login, name, birthday);
     }

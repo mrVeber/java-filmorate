@@ -12,22 +12,29 @@ import ru.yandex.practicum.filmorate.exception.*;
 public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public ResponseBody handleValidationException(final ValidationException e) {
-        log.debug("Некорректный ввод {} ", e.getMessage());
-        return new ResponseBody(ValidationException.class.getName(), e.getMessage());
+    public ResponseBody handlerValidationException(final ValidationException e) {
+        log.warn("400 {}", e.getMessage());
+        return new ResponseBody("Validation error 400", e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public ResponseBody handleObjectNotFoundException(final ObjectNotFoundException e) {
-        log.debug(e.getMessage());
-        return new ResponseBody(ObjectNotFoundException.class.getName(), e.getMessage());
+    public ResponseBody handlerNotFoundException(final ObjectNotFoundException e) {
+        log.warn("404 {}", e.getMessage());
+        return new ResponseBody("Object not found 404", e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseBody handleObjectNotFoundException(final Exception e) {
-        log.debug(e.getMessage());
-        return new ResponseBody(e.getClass().getName(), e.getMessage());
+    public ResponseBody handlerInternalException(final InternalException e) {
+        log.warn("500 {}", e.getMessage());
+        return new ResponseBody("Internal error 500", e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ResponseBody handlerDataAccessException(final DataException e) {
+        log.warn("404 {}", e.getMessage());
+        return new ResponseBody("Data not found 404", e.getMessage());
     }
 }
