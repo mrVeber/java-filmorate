@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.*;
 
-import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 
@@ -85,7 +84,6 @@ public class FilmService {
                 "Параметры: count={}, genreId={}, year={}", count, genreId, year);
         List<Film> films = filmStorage.getBestFilms(count, genreId, year);
         genreStorage.loadGenres(films);
-
         return films;
     }
 }
