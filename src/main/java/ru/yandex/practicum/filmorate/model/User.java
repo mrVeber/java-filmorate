@@ -1,37 +1,27 @@
 package ru.yandex.practicum.filmorate.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import javax.validation.constraints.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder(toBuilder = true)
 public class User {
+
     @PositiveOrZero
     private long id;
-    @NotBlank
-    @Email
+    @NotBlank(message = "Отсутствует email")
+    @Email(message = "Некорректный email")
+    @Size(max = 50)
     private String email;
-    @NotBlank
-    @Pattern(regexp = "\\S*")
+    @NotNull(message = "Отсутствует логин")
+    @Pattern(regexp = "\\S+", message = "Логин содержит пробелы")
+    @Size(min = 1, max = 20)
     private String login;
     private String name;
-    @NotNull
-    @PastOrPresent
+    @NotNull(message = "Не указана дата рождения")
+    @PastOrPresent(message = "Некорректная дата рождения")
     private LocalDate birthday;
-    @JsonIgnore
-    private List<Long> friends = new ArrayList<>();
-
-    public void addFriend(long id) {
-        friends.add(id);
-    }
-
-    public void deleteFriends(long id) {
-        friends.remove(id);
-    }
 }

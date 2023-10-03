@@ -2,76 +2,89 @@ package ru.yandex.practicum.filmorate.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.ObjectNotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.FilmStorage;
+import ru.yandex.practicum.filmorate.storage.GenreStorage;
 import ru.yandex.practicum.filmorate.storage.UserStorage;
 import java.util.*;
-import java.util.stream.Collectors;
 
-@Slf4j
 @Service
-@RequiredArgsConstructor
+@Slf4j
+@RequiredArgsConstructor(onConstructor_ = @Autowired)
 public class UserService {
-    private final UserStorage userStorage;
+    private final UserStorage userDbStorage;
+    private final FilmStorage filmStorage;
+    private final GenreStorage genreStorage;
 
-    public void addUser(User user) {
-        checkUser(user);
-        userStorage.addUser(user);
+    public List<User> findAll() {
+        log.info("Список пользователей отправлен");
+
+        return userDbStorage.findAll();
     }
 
-    public void updateUser(User user) {
-        checkUser(user);
-        userStorage.updateUser(user);
+    public User create(User user) {
+        validate(user);
+        log.info("Пользователь добавлен");
+
+        return userDbStorage.create(user);
     }
 
-    public User getUser(long id) {
-        log.debug("Пользователь (id=" + id + ")");
-       return Optional.ofNullable(userStorage.getUser(id))
-               .orElseThrow(() -> new ObjectNotFoundException("Пользователя с идентификатором " + id + " нет!"));
+    public User update(User user) {
+        validate(user);
+        log.info("Пользователь {} обновлен", user.getId());
+
+        return userDbStorage.update(user);
     }
 
-    public Collection<User> getUsers() {
-        return userStorage.getUsers();
+    public User getById(long id) {
+        log.info("Пользователь с id {} отправлен", id);
+
+        return userDbStorage.getById(id).orElseThrow(() -> {
+            log.warn("Пользователь с идентификатором {} не найден.", id);
+            throw new ObjectNotFoundException("Пользователь не найден");
+        });
     }
 
-    public Collection<User> getFriends(long id) {
-        User user = getUser(id);
-        return user.getFriends().stream()
-                .map(this::getUser)
-                .collect(Collectors.toList());
+    public void deleteById(long id) {
+        log.info("Удалить пользователя {}", id);
+        int result = userDbStorage.deleteById(id);
+        if (result == 0) throw new ObjectNotFoundException("Пользователь не найден");
     }
 
-    public Collection<User> getCommonFriends(long id, long otherId) {
-        User user = getUser(id);
-        User otherUser = getUser(otherId);
-        return user.getFriends().stream()
-                .filter(otherUser.getFriends()::contains)
-                .map(this::getUser)
-                .collect(Collectors.toList());
+    public List<Long> followUser(long followerId, long followingId) {
+        usersValidation(followerId, followingId);
+        log.info("Пользователь {} подписался на {}", followerId, followingId);
+        return userDbStorage.followUser(followerId, followingId);
     }
 
-    public void addFriend(long id, long friendId) {
-        validateId(id, friendId);
-        userStorage.addFriend(id, friendId);
-        log.debug("Пользователи id= {} / {} подружились", id, friendId);
+    public List<Long> unfollowUser(long followerId, long followingId) {
+        log.info("Пользователь {} отписался от {}", followerId, followingId);
+        return userDbStorage.unfollowUser(followerId, followingId);
     }
 
-    public void deleteFriend(long id, long friendId) {
-        validateId(id, friendId);
-        userStorage.deleteFriend(id, friendId);
-        log.debug("Пользователи id= {} / {} перестали быть друзьями",id, friendId);
+    public List<User> getFriendsListById(long id) {
+        getById(id);
+        log.info("Запрос получения списка друзей пользователя {} выполнен", id);
+
+        return userDbStorage.getFriendsListById(id);
     }
 
-    private User checkUser(User user) {
-        if (user.getName() == null || user.getName().isBlank()) {
-            user.setName(user.getLogin());
-        }
-        return user;
+    public List<User> getCommonFriendsList(long firstId, long secondId) {
+        usersValidation(firstId, secondId);
+        log.info("Список общих друзей {} и {} отправлен", firstId, secondId);
+
+        return userDbStorage.getCommonFriendsList(firstId, secondId);
     }
 
-    private void validateId(long userId, long friendId) {
-        userStorage.getUser(userId);
-        userStorage.getUser(friendId);
+    public void validate(User user) {
+        if (user.getName() == null || user.getName().isBlank()) user.setName(user.getLogin());
+    }
+
+    public void usersValidation(long followerId, long followingId) {
+        getById(followerId);
+        getById(followingId);
     }
 }

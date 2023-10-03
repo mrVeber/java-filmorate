@@ -1,38 +1,29 @@
 package ru.yandex.practicum.filmorate.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import ru.yandex.practicum.filmorate.validators.ReleaseDate;
 import javax.validation.constraints.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashSet;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder(toBuilder = true)
 public class Film {
+
     @PositiveOrZero
     private long id;
-    @NotBlank
+    @NotBlank(message = "Некорректное название фильма")
+    @Size(max = 60, message = "Слишком длинное название фильма")
     private String name;
-    @NotNull
-    @Size(max = 200)
+    @NotNull(message = "Отсутствует описание фильма")
+    @Size(min = 1, max = 200, message = "Описание превышает максимальный размер(200символов)")
     private String description;
     @ReleaseDate
     private LocalDate releaseDate;
-    @Positive
-    @NotNull
-    private Integer duration;
-    @JsonIgnore
-    private List<Long> likes = new ArrayList<>();
-
-    public void addLike(long id) {
-        likes.add(id);
-    }
-
-    public void deleteLike(long id) {
-        likes.remove(id);
-    }
+    @Min(value = 1, message = "Некорректная продолжительность фильма")
+    private long duration;
+    private Mpa mpa;
+    private LinkedHashSet<Genre> genres;
 }
